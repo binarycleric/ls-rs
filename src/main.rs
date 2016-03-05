@@ -9,6 +9,7 @@ struct DisplayFile {
 }
 
 impl DisplayFile {
+
     fn from_dir_entry(file: fs::DirEntry) -> DisplayFile {
         let meta = fs::metadata(file.path()).unwrap();
         let path = file.path();
@@ -33,6 +34,7 @@ impl DisplayFile {
                        path=path, 
                        length=length);
     }
+
 }
 
 fn list_files(path: &Path) {
