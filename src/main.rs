@@ -3,21 +3,39 @@ use std::path::Path;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 
-fn display_file_information(file: fs::DirEntry) {
-    let meta = fs::metadata(file.path()).unwrap();
-    let path = file.path();
-    let mode = meta.permissions().mode();
 
-    println!("{mode} {path}", path=path.display(), mode=mode);
+struct DisplayFile {
+    name: std::path::PathBuf, 
+    permissions: std::fs::Permissions, 
 }
 
+
+fn display_file_information(file: DisplayFile) {
+    println!("{perms} {path}", 
+             perms=file.permissions.mode(), 
+             path=file.name.display());
+}
+
+fn build_display_file(file: fs::DirEntry) -> DisplayFile {
+    let meta = fs::metadata(file.path()).unwrap();
+    let path = file.path();
+
+    DisplayFile { 
+        name: path,
+        permissions: meta.permissions(),
+    }
+}
+
+
 fn list_files(path: &Path) {
+    let mut displayable = Vec::new();
+
     match fs::read_dir(path) {
         Ok(entries) => {
             for entry in entries {
                 match entry {
                     Ok(e) => {
-                        display_file_information(e);
+                        displayable.push(build_display_file(e));
                     },
                     Err(_) => {
 
@@ -28,6 +46,10 @@ fn list_files(path: &Path) {
         Err(_) => { 
          
         },
+    }
+
+    for file in displayable {
+        display_file_information(file);
     }
 }
 
