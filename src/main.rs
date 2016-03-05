@@ -4,8 +4,8 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt;
 
 struct DisplayFile {
-    name: std::path::PathBuf, 
-    permissions: std::fs::Permissions, 
+    name: std::path::PathBuf,
+    metadata: std::fs::Metadata, 
 }
 
 impl DisplayFile {
@@ -15,16 +15,23 @@ impl DisplayFile {
 
         DisplayFile { 
             name: path,
-            permissions: meta.permissions(),
+            metadata: meta, 
         }
     }
 
-    // TODO: Make this return instead of just printing.
-    fn display(&self) {
-        let mode = self.permissions.mode();
-        let path = self.name.display(); 
+    fn permissions(&self) -> std::fs::Permissions {
+        return self.metadata.permissions()
+    }
 
-        println!("{mode} {path}", mode=mode, path=path);
+    fn display(&self) -> String {
+        let mode = self.permissions().mode();
+        let path = self.name.display(); 
+        let length = self.metadata.len();
+
+        return format!("{mode} - {length} bytes {path}", 
+                       mode=mode, 
+                       path=path, 
+                       length=length);
     }
 }
 
@@ -38,7 +45,7 @@ fn list_files(path: &Path) {
     }
 
     for display in displayable {
-        display.display();
+        println!("{}", display.display())
     }
 }
 
