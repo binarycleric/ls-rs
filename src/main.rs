@@ -3,12 +3,10 @@ use std::path::Path;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 
-
 struct DisplayFile {
     name: std::path::PathBuf, 
     permissions: std::fs::Permissions, 
 }
-
 
 fn display_file_information(file: DisplayFile) {
     println!("{perms} {path}", 
@@ -25,7 +23,6 @@ fn build_display_file(file: fs::DirEntry) -> DisplayFile {
         permissions: meta.permissions(),
     }
 }
-
 
 fn list_files(path: &Path) {
     let mut displayable = Vec::new();
