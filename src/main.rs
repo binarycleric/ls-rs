@@ -8,45 +8,37 @@ struct DisplayFile {
     permissions: std::fs::Permissions, 
 }
 
-fn display_file_information(file: DisplayFile) {
-    println!("{perms} {path}", 
-             perms=file.permissions.mode(), 
-             path=file.name.display());
-}
+impl DisplayFile {
+    fn from_dir_entry(file: fs::DirEntry) -> DisplayFile {
+        let meta = fs::metadata(file.path()).unwrap();
+        let path = file.path();
 
-fn build_display_file(file: fs::DirEntry) -> DisplayFile {
-    let meta = fs::metadata(file.path()).unwrap();
-    let path = file.path();
+        DisplayFile { 
+            name: path,
+            permissions: meta.permissions(),
+        }
+    }
 
-    DisplayFile { 
-        name: path,
-        permissions: meta.permissions(),
+    // TODO: Make this return instead of just printing.
+    fn display(&self) {
+        let mode = self.permissions.mode();
+        let path = self.name.display(); 
+
+        println!("{mode} {path}", mode=mode, path=path);
     }
 }
 
 fn list_files(path: &Path) {
     let mut displayable = Vec::new();
+    let entries = fs::read_dir(path).unwrap();
 
-    match fs::read_dir(path) {
-        Ok(entries) => {
-            for entry in entries {
-                match entry {
-                    Ok(e) => {
-                        displayable.push(build_display_file(e));
-                    },
-                    Err(_) => {
-
-                    }
-                }
-            }
-        },
-        Err(_) => { 
-         
-        },
+    for entry in entries {
+        let display = DisplayFile::from_dir_entry(entry.unwrap());
+        displayable.push(display);
     }
 
-    for file in displayable {
-        display_file_information(file);
+    for display in displayable {
+        display.display();
     }
 }
 
