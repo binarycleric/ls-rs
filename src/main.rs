@@ -20,19 +20,33 @@ impl DisplayFile {
         }
     }
 
+    pub fn display(&self) -> String {
+        let mode = self.permissions().mode();
+        let length = self.metadata.len();
+
+        return format!("{mode} - {length} bytes :: {path}", 
+                       mode=mode, 
+                       path=self.display_name(), 
+                       length=length);
+    }
+
+    pub fn is_hidden(&self) -> bool {
+        return self.name.to_str().unwrap().starts_with("./.");
+    }
+
     fn permissions(&self) -> std::fs::Permissions {
         return self.metadata.permissions()
     }
 
-    fn display(&self) -> String {
-        let mode = self.permissions().mode();
-        let path = self.name.display(); 
-        let length = self.metadata.len();
-
-        return format!("{mode} - {length} bytes {path}", 
-                       mode=mode, 
-                       path=path, 
-                       length=length);
+    fn display_name(&self) -> String {
+        match self.name.to_str() {
+            Some(name) => {
+                return name.replace("./", "") 
+            },
+            None => {
+                return String::from("")
+            }
+        }
     }
 
 }
@@ -47,7 +61,9 @@ fn list_files(path: &Path) {
     }
 
     for display in displayable {
-        println!("{}", display.display())
+        if !display.is_hidden() {
+            println!("{}", display.display());
+        }
     }
 }
 
