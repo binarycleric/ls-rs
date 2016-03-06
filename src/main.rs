@@ -21,7 +21,7 @@ impl DisplayFile {
     }
 
     pub fn display(&self) -> String {
-        return format!("{mode} - {length} bytes :: {path}", 
+        return format!("{mode} - {length} :: {path}", 
                        mode=self.display_mode(),
                        path=self.display_name(), 
                        length=self.display_length());
@@ -37,30 +37,22 @@ impl DisplayFile {
 
     fn display_length(&self) -> String {
         let length = self.metadata.len();
-
-        return format!("{} bytes", length);
+        return format!("{:^}b", length);
     }
 
     // TODO: This is a hack.
     fn display_mode(&self) -> String {
         let mode = self.permissions().mode();
-        if mode == 0 {
-            return String::from("000");
-            
-        } else {
-            return format!("{:o}", mode);
-        }
+        return format!("{:<03o}", mode);
     }
 
     fn display_name(&self) -> String {
-        match self.name.to_str() {
-            Some(name) => {
-                return name.replace("./", "") 
-            },
-            None => {
-                return String::from("")
-            }
-        }
+        let name = match self.name.to_str() {
+            Some(name) => name.replace("./", ""), 
+            None => String::from(""),
+        };
+
+        return format!("{:>}", name);
     }
 
 }
