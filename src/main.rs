@@ -21,13 +21,10 @@ impl DisplayFile {
     }
 
     pub fn display(&self) -> String {
-        let mode = self.permissions().mode();
-        let length = self.metadata.len();
-
-        return format!("{mode:o} - {length} bytes :: {path}", 
-                       mode=mode, 
+        return format!("{mode} - {length} bytes :: {path}", 
+                       mode=self.display_mode(),
                        path=self.display_name(), 
-                       length=length);
+                       length=self.display_length());
     }
 
     pub fn is_hidden(&self) -> bool {
@@ -36,6 +33,23 @@ impl DisplayFile {
 
     fn permissions(&self) -> std::fs::Permissions {
         return self.metadata.permissions()
+    }
+
+    fn display_length(&self) -> String {
+        let length = self.metadata.len();
+
+        return format!("{} bytes", length);
+    }
+
+    // TODO: This is a hack.
+    fn display_mode(&self) -> String {
+        let mode = self.permissions().mode();
+        if mode == 0 {
+            return String::from("000");
+            
+        } else {
+            return format!("{:o}", mode);
+        }
     }
 
     fn display_name(&self) -> String {
