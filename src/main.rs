@@ -24,7 +24,7 @@ impl DisplayFile {
         let mode = self.permissions().mode();
         let length = self.metadata.len();
 
-        return format!("{mode} - {length} bytes :: {path}", 
+        return format!("{mode:o} - {length} bytes :: {path}", 
                        mode=mode, 
                        path=self.display_name(), 
                        length=length);
